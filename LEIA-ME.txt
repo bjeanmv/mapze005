@@ -1,0 +1,27 @@
+MAPEAMENTO ELEITORAL — CELULAR E APLICATIVO
+
+1. HTML RESPONSIVO
+Abra mapeamento.html no navegador para usar o painel. Ele não depende de bibliotecas externas. No celular, cada seção vira um cartão; no computador, aparece uma tabela. Todos os  dados originais foram mantidos e o campo NEILTON foi corrigido.
+
+2. PUBLICAR PARA INSTALAR
+Extraia este ZIP. Envie mapeamento.html, manifest.webmanifest, sw.js e a pasta icons inteira para a mesma pasta de uma hospedagem HTTPS, como o seu GitHub Pages. Mantenha os nomes e a estrutura. Acesse o endereço terminado em /mapeamento.html. Pode ser uma subpasta: todos os caminhos são relativos.
+Não basta enviar somente o HTML para ativar a instalação e o modo offline. Não abra o ZIP no celular esperando instalar. É um app da web (PWA), sem APK, IPA ou publicação na Play Store/App Store.
+
+3. ANDROID
+Abra o link HTTPS no Chrome. Toque em Instalar aplicativo no painel e, quando disponível, Instalar neste dispositivo. Como alternativa, use o menu ⋮ > Instalar aplicativo / Adicionar à tela inicial. A disponibilidade e os rótulos dependem do navegador.
+
+4. IPHONE / IPAD
+Abra o link no Safari. Compartilhar > Adicionar à Tela de Início. Ative Abrir como App da Web, se aparecer, e confirme Adicionar. O iPhone não usa o convite automático de instalação do Android; o botão do painel mostra as instruções.
+
+5. VOTOS E BACKUP
+A chave original votos_mapeamento foi preservada. Os votos antigos são reaproveitados quando o painel é aberto na mesma origem e no mesmo navegador. Arquivos locais e o aplicativo instalado podem ter armazenamento separado. Antes da mudança, use Baixar backup e depois Restaurar backup. Os totais são gerais, mesmo com filtros. Não há login, servidor de votos ou sincronização entre aparelhos. Limpar dados do navegador pode apagar votos.
+
+6. OFFLINE
+Depois de publicar, abra o link com internet e aguarde Disponível offline. O painel pode então ser reaberto sem conexão. O navegador pode remover seu armazenamento; mantenha backups. A interface e os dados-base estão incluídos no pacote.
+
+7. ATUALIZAR
+Ao alterar os arquivos do pacote no futuro, incremente a versão v1 em sw.js para atualizar os recursos offline. Feche as janelas abertas do app e reabra com internet.
+
+Referências de instalação:
+https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable
+https://support.apple.com/guide/iphone/iphea86e5236/ios
