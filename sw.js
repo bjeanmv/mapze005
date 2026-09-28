@@ -1,5 +1,5 @@
 const CACHE_PREFIX='mapeamento-eleitoral:'+self.registration.scope+':';
-const CACHE=CACHE_PREFIX+'v1';
+const CACHE=CACHE_PREFIX+'v2';
 const ASSETS=['./mapeamento.html','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./icons/apple-touch-icon.png'];
 const PAGE=new URL('./mapeamento.html',self.location).href;
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));});
