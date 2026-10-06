@@ -20,6 +20,7 @@
 
 .cloud-panel{margin-bottom:18px;padding:16px;background:#fff;border:1px solid var(--line);border-radius:14px}.cloud-panel h2{font-size:16px}.cloud-panel p{font-size:13px;line-height:1.6;margin-top:6px;color:#526c63}.cloud-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.cloud-actions button{font-size:13px}.cloud-error{color:#a43a24!important}.login-form{display:grid;gap:14px}.login-form input{width:100%;font-size:16px}.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}.compare-grid p{background:#edf5f1;padding:12px;border-radius:10px;font-size:13px}.sync-note{font-size:12px!important}.dialog button{overflow-wrap:anywhere}#resolve-local{margin-top:10px;width:100%}
 @media(max-width:480px){.cloud-actions{display:grid;grid-template-columns:1fr 1fr}.cloud-actions button:first-child{grid-column:1/-1}.compare-grid{grid-template-columns:1fr}}
+.filter-summary{display:flex;flex-wrap:wrap;align-items:center;gap:10px 24px;margin:0 0 14px;padding:14px 16px;background:#eaf3ef;border:1px solid var(--line);border-radius:12px;font-size:13px}.filter-summary>strong{font-size:12px;color:#526c63}.filter-summary span{display:flex;align-items:baseline;gap:8px}.filter-summary b{font-size:20px;font-variant-numeric:tabular-nums}@media(max-width:480px){.filter-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}.filter-summary>strong,.filter-summary>span:last-child{grid-column:1/-1}.filter-summary>span:last-child{font-size:12px}}
 </style>
 </head>
 <body>
@@ -27,7 +28,7 @@
 <header class="hero"><div><p class="eyebrow">Painel de acompanhamento</p><h1>Mapeamento Eleitoral</h1><p class="subtitle">Gerenciamento de seções e simulação de votos</p></div><button id="btn-instalar" type="button">＋ Instalar aplicativo</button></header>
 <div class="statusline"><span id="save-status" role="status"><span class="status-dot"></span>Salvamento automático neste dispositivo</span><span id="connection-status">Verificando conexão…</span></div>
 <section class="cloud-panel" aria-label="Salvamento na nuvem"><h2>Meu mapeamento na nuvem</h2><p id="cloud-status" role="status">Entre para carregar a base de 06/10/2026 do Supabase.</p><p class="sync-note" id="cloud-account"></p><div class="cloud-actions"><button id="cloud-login" class="primary">Entrar na nuvem</button><button id="cloud-sync" disabled>Salvar agora</button><button id="cloud-load" disabled>Atualizar da nuvem</button><button id="cloud-logout" hidden>Sair</button></div></section>
-<section class="stats" aria-label="Totais gerais de todas as seções">
+<section class="stats" id="resumo-painel" aria-label="Totais das seções exibidas">
 <div class="stat"><span class="stat-label">Total eleitores</span><strong id="resumo-eleitores">0</strong><small id="total-secoes"></small></div>
 <div class="stat apurados"><span class="stat-label">Votos registrados</span><strong id="resumo-apurados">0</strong><small id="percentual-apurados">0% dos eleitores</small></div>
 <div class="stat benes"><span class="stat-label">Total BENES</span><strong id="resumo-benes" class="benes-text">0</strong><small>Votos informados</small></div>
@@ -38,10 +39,11 @@
 <label class="field"><span>Bairro / distrito</span><select id="filtro-bairro"><option value="">Todos os bairros</option></select></label><button id="btn-limpar" type="button">Limpar filtros</button>
 </section>
 <main><div class="results-head"><div><h2>Seções eleitorais</h2><p id="result-count" role="status"></p></div></div>
+<div class="filter-summary" role="status" aria-live="polite" aria-atomic="true"><strong id="filtro-escopo">Soma geral</strong><span class="benes-text">BENES <b id="filtro-benes">0</b></span><span class="neilton-text">NEILTON <b id="filtro-neilton">0</b></span><span>Total dos dois cargos <b id="filtro-total">0</b></span></div>
 <div class="table-wrap"><table aria-label="Seções eleitorais e votos por candidato"><thead><tr><th scope="col">Bairro / distrito</th><th scope="col">Local de votação</th><th scope="col">Seção</th><th scope="col">Eleitores</th><th scope="col" class="benes-text">Votos BENES</th><th scope="col" class="neilton-text">Votos NEILTON</th></tr></thead><tbody id="tabela-corpo"></tbody></table><div id="empty-state" class="empty" hidden><strong>Nenhuma seção encontrada</strong><p>Tente outro nome ou limpe os filtros.</p></div></div>
 </main>
 <details class="tools"><summary>Backup e gerenciamento dos dados</summary><p>Entre na sua conta para carregar a base do Supabase. Após conectar, suas alterações são salvas automaticamente na nuvem. Sem conexão, mantenha esta aba aberta ou baixe um backup; o painel indicará o que ainda não foi enviado.</p><div class="tool-buttons"><button id="btn-exportar" type="button">Baixar backup</button><button id="btn-importar" type="button">Restaurar backup</button><button id="btn-zerar" class="danger" type="button">Zerar simulação</button></div><input id="backup-file" type="file" accept=".json,application/json" hidden></details>
-<p class="footnote">Os totais do painel consideram todas as seções, mesmo com filtros ativos. Os votos correspondem a dois cargos diferentes; a soma não representa quantidade de eleitores. A base de 06/10/2026 é carregada após entrar na nuvem.</p>
+<p class="footnote">Os totais acompanham a busca e o bairro selecionado, somando somente as seções exibidas. Ao limpar os filtros, os totais gerais voltam a aparecer. Os votos correspondem a dois cargos diferentes; a soma não representa quantidade de eleitores. A base de 06/10/2026 é carregada após entrar na nuvem.</p>
 </div>
 <dialog id="install-dialog" class="dialog" aria-labelledby="install-title"><div class="dialog-head"><h2 id="install-title">Instalar no celular</h2><button type="button" data-close aria-label="Fechar instruções">✕</button></div><p>Tenha o Mapeamento na tela inicial e abra em uma janela própria.</p><p id="install-notice" class="notice"></p><button id="btn-native-install" class="primary" hidden>Instalar neste dispositivo</button><section id="ios-guide"><h3>iPhone e iPad</h3><ol><li>Abra o endereço do painel no <strong>Safari</strong>.</li><li>Toque em <strong>Compartilhar</strong> e em <strong>Adicionar à Tela de Início</strong>.</li><li>Se aparecer, ative <strong>Abrir como App da Web</strong>. Toque em <strong>Adicionar</strong>.</li></ol></section><section id="android-guide"><h3>Android</h3><ol><li>Abra o endereço do painel no <strong>Chrome</strong>.</li><li>Use o botão de instalação, quando disponível, ou abra o menu <strong>⋮</strong>.</li><li>Toque em <strong>Instalar aplicativo</strong> ou <strong>Adicionar à tela inicial</strong> e confirme.</li></ol></section><p class="notice">Os dados ficam no dispositivo. Antes de mudar de navegador ou instalar, use “Baixar backup”; depois, restaure no app se necessário.</p></dialog>
 <dialog id="confirm-dialog" class="dialog" aria-labelledby="confirm-title"><h2 id="confirm-title">Confirmar alteração</h2><p id="confirm-text" style="margin-top:12px"></p><div class="dialog-actions"><button id="confirm-cancel">Cancelar</button><button id="confirm-ok" class="danger">Confirmar</button></div></dialog>
@@ -241,10 +243,24 @@ function validarVotos(value){
 }
 try{const saved=localStorage.getItem(storageKey);if(saved){try{estadoVotos=validarVotos(JSON.parse(saved));}catch{badStoredData=true;$('save-status').textContent='Backup local inválido. Restaure um backup para continuar.';}}}catch{storageBroken=true;$('save-status').textContent='Armazenamento indisponível. Use Baixar backup.';}
 function salvar(){if(badStoredData){$('save-status').textContent='Dados antigos inválidos. Baixe um backup antes de zerar ou restaurar.';return false;}try{localStorage.setItem(storageKey,JSON.stringify(estadoVotos));storageBroken=false;$('save-status').textContent='✓ Salvo neste dispositivo';return true;}catch{storageBroken=true;$('save-status').textContent='Não foi possível salvar. Baixe um backup.';return false;}}
-function atualizarResumos(){let eleitores=0,b=0,n=0;for(const d of dadosIniciais){eleitores+=d.eleitores;b+=estadoVotos[d.secao]?.benes||0;n+=estadoVotos[d.secao]?.neilton||0;}
- $('resumo-eleitores').textContent=fmt(eleitores);$('resumo-benes').textContent=fmt(b);$('resumo-neilton').textContent=fmt(n);$('resumo-apurados').textContent=fmt(b+n);$('percentual-apurados').textContent='Soma dos dois cargos';$('total-secoes').textContent=dadosIniciais.length+' seções cadastradas';}
-function renderizarTabela(){const termo=normalizar($('busca-geral').value),bairro=$('filtro-bairro').value;
- const lista=dadosIniciais.filter(d=>(!bairro||d.bairro===bairro)&&normalizar(d.local+' '+d.bairro+' '+d.secao).includes(termo));
+function obterDadosFiltrados(){
+ const termo=normalizar($('busca-geral').value),bairro=$('filtro-bairro').value;
+ return dadosIniciais.filter(d=>(!bairro||d.bairro===bairro)&&normalizar(d.local+' '+d.bairro+' '+d.secao).includes(termo));
+}
+function atualizarResumos(lista=obterDadosFiltrados()){
+ let eleitores=0,b=0,n=0;
+ for(const d of lista){eleitores+=d.eleitores;b+=estadoVotos[d.secao]?.benes||0;n+=estadoVotos[d.secao]?.neilton||0;}
+ const filtrado=!!normalizar($('busca-geral').value)||!!$('filtro-bairro').value;
+ $('resumo-eleitores').textContent=fmt(eleitores);$('resumo-benes').textContent=fmt(b);$('resumo-neilton').textContent=fmt(n);$('resumo-apurados').textContent=fmt(b+n);
+ $('percentual-apurados').textContent='Soma dos dois cargos';
+ $('total-secoes').textContent=lista.length+(lista.length===1?' seção':' seções')+(filtrado?' no filtro':' cadastradas');
+ $('resumo-painel').setAttribute('aria-label',filtrado?'Totais das seções filtradas':'Totais gerais de todas as seções');
+ $('filtro-escopo').textContent=filtrado?'Soma do filtro':'Soma geral';
+ $('filtro-benes').textContent=fmt(b);$('filtro-neilton').textContent=fmt(n);$('filtro-total').textContent=fmt(b+n);
+}
+function renderizarTabela(){
+ const lista=obterDadosFiltrados();
+ atualizarResumos(lista);
  $('result-count').textContent=lista.length+' de '+dadosIniciais.length+' seções • Preencha os votos abaixo';$('empty-state').hidden=lista.length>0;
  $('tabela-corpo').innerHTML=lista.map(d=>`<tr><td class="district">${escapeHTML(d.bairro)}</td><td class="place">${escapeHTML(d.local)}</td><td class="section"><span class="mobile-label">Seção</span>${d.secao}</td><td class="electors"><span class="mobile-label">Eleitores</span>${d.eleitores}</td>${['benes','neilton'].map(c=>`<td class="vote-cell ${c}"><label><span class="mobile-label ${c}-text">Votos ${c.toUpperCase()}</span><input type="number" min="0" max="2147483647" step="1" inputmode="numeric" pattern="[0-9]*" placeholder="0" aria-label="Votos ${c.toUpperCase()}, seção ${d.secao}" data-secao="${d.secao}" data-campo="${c}" value="${estadoVotos[d.secao]?.[c]??''}"></label></td>`).join('')}</tr>`).join('');}
 $('tabela-corpo').addEventListener('input',e=>{const el=e.target;if(!el.matches('input[data-secao]'))return;const n=el.value===''?0:Number(el.value);if(el.validity.badInput||!Number.isSafeInteger(n)||n<0||n>2147483647){el.setCustomValidity('Informe um número inteiro igual ou maior que zero.');el.reportValidity();return;}el.setCustomValidity('');const s=el.dataset.secao,c=el.dataset.campo;if(!estadoVotos[s])estadoVotos[s]={benes:0,neilton:0};estadoVotos[s][c]=n;salvar();atualizarResumos();});
