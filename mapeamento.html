@@ -30,13 +30,23 @@
 .bar-values{background:none;position:relative}.bar-values::before{content:"";position:absolute;inset:0 42px 0 0;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(25% - 1px),#edf2ef calc(25% - 1px),#edf2ef 25%);pointer-events:none}
 
 .vote-cell input[readonly]{background:transparent;border-color:transparent;box-shadow:none;cursor:default;appearance:textfield}.vote-cell input[readonly]::-webkit-inner-spin-button,.vote-cell input[readonly]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+
+.hero-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.hero .admin-entry{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;min-height:44px;padding:0;margin:0;border-color:#ffffff40;background:#ffffff0a;border-radius:10px;font-size:19px;flex:none}
+.hero .admin-entry:hover{background:#ffffff20}.hero .admin-entry:focus-visible{outline:3px solid #cdeede;outline-offset:3px}
+.vote-readonly{display:block;min-height:48px;line-height:48px;font-size:18px;font-weight:750;font-variant-numeric:tabular-nums}
+.vote-cell.benes .vote-readonly{color:#166534}.vote-cell.neilton .vote-readonly{color:#9a4315}
+.admin-dialog{max-width:540px}.admin-dialog .cloud-panel{border:0;padding:0;margin-bottom:16px}.admin-dialog .cloud-actions{display:grid;grid-template-columns:1fr 1fr}.admin-dialog .cloud-actions button:first-child{grid-column:1/-1}
+.admin-dialog .statusline{margin:14px 0}.admin-dialog .tools{margin-top:14px}.admin-dialog .cloud-actions .primary{margin:0}
+@media(max-width:760px){.hero-actions{margin-top:18px;display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:10px}.hero-actions #btn-instalar{margin:0;width:100%;min-height:44px}.hero .admin-entry{margin:0;width:44px;background:#ffffff0a}.vote-readonly{font-size:21px;min-height:40px;line-height:40px}}
+@media print{.admin-entry{display:none!important}}
 </style>
 </head>
 <body>
 <div class="shell">
-<header class="hero"><div><p class="eyebrow">Painel de acompanhamento</p><h1>Mapeamento Eleitoral</h1><p class="subtitle">Votos, gráficos e seções de Macaíba/RN</p></div><button id="btn-instalar" type="button">＋ Instalar aplicativo</button></header>
-<div class="statusline"><span id="save-status" role="status"><span class="status-dot"></span>Salvamento automático neste dispositivo</span><span id="connection-status">Verificando conexão…</span></div>
-<section class="cloud-panel" aria-label="Dados do mapeamento"><h2>Dados do mapeamento</h2><p id="cloud-status" role="status">Carregando os votos automaticamente…</p><p class="sync-note" id="cloud-account"></p><div class="cloud-actions"><button id="cloud-load" class="primary">Atualizar votos</button><button id="cloud-login">Administrar</button><button id="cloud-sync" hidden disabled>Salvar agora</button><button id="cloud-logout" hidden>Sair</button></div></section>
+<header class="hero"><div><p class="eyebrow">Painel de acompanhamento</p><h1>Mapeamento Eleitoral</h1><p class="subtitle">Votos, gráficos e seções de Macaíba/RN</p></div><div class="hero-actions"><button id="btn-instalar" type="button">＋ Instalar aplicativo</button><button id="cloud-login" class="admin-entry" type="button" aria-label="Acesso do administrador" aria-haspopup="dialog" title="Administrador"><span aria-hidden="true">🔒</span></button></div></header>
+
+
 <section class="stats" id="resumo-painel" aria-label="Totais das seções exibidas">
 <div class="stat"><span class="stat-label">Total eleitores</span><strong id="resumo-eleitores">0</strong><small id="total-secoes"></small></div>
 <div class="stat apurados"><span class="stat-label">Votos registrados</span><strong id="resumo-apurados">0</strong><small id="percentual-apurados">0% dos eleitores</small></div>
@@ -51,7 +61,7 @@
 <section id="painel-graficos" class="analytics" aria-labelledby="analytics-title">
  <div class="analytics-heading"><div><p class="analytics-kicker">LEITURA DOS RESULTADOS</p><h2 id="analytics-title">Os votos em perspectiva</h2><p id="chart-scope" role="status"></p></div><button id="chart-export" type="button">↓ Baixar dados CSV</button></div>
  <p class="chart-explainer">BENES · Deputado federal &nbsp; / &nbsp; NEILTON · Deputado estadual. Cada percentual mostra a distribuição dos votos do próprio candidato no filtro atual.</p>
- <div id="chart-empty" class="chart-empty" hidden><strong>Nenhum voto registrado neste filtro</strong><p>Use “Atualizar votos” para consultar a base. Se já estiver atualizada, não há votos neste filtro.</p></div>
+ <div id="chart-empty" class="chart-empty" hidden><strong>Nenhum voto registrado neste filtro</strong><p>Não há votos registrados nas seções deste filtro.</p></div>
  <div class="donut-grid">
   <article class="chart-card"><div class="chart-title"><span class="candidate-tag benes-tag">BENES · 4444</span><span class="chart-type">Pizza por bairro</span></div><h3>De onde vêm os votos</h3><div id="pie-benes" class="donut-body"></div></article>
   <article class="chart-card"><div class="chart-title"><span class="candidate-tag neilton-tag">NEILTON · 11111</span><span class="chart-type">Pizza por bairro</span></div><h3>De onde vêm os votos</h3><div id="pie-neilton" class="donut-body"></div></article>
@@ -72,11 +82,12 @@
 <div class="filter-summary" role="status" aria-live="polite" aria-atomic="true"><strong id="filtro-escopo">Soma geral</strong><span class="benes-text">BENES <b id="filtro-benes">0</b></span><span class="neilton-text">NEILTON <b id="filtro-neilton">0</b></span><span>Total dos dois cargos <b id="filtro-total">0</b></span></div>
 <div class="table-wrap"><table aria-label="Seções eleitorais e votos por candidato"><thead><tr><th scope="col">Bairro / distrito</th><th scope="col">Local de votação</th><th scope="col">Seção</th><th scope="col">Eleitores</th><th scope="col" class="benes-text">Votos BENES</th><th scope="col" class="neilton-text">Votos NEILTON</th></tr></thead><tbody id="tabela-corpo"></tbody></table><div id="empty-state" class="empty" hidden><strong>Nenhuma seção encontrada</strong><p>Tente outro nome ou limpe os filtros.</p></div></div>
 </main>
-<details class="tools"><summary>Backup e gerenciamento dos dados</summary><p>A consulta carrega os votos automaticamente, sem e-mail. Você pode baixar uma cópia dos dados. Para editar, restaurar um backup ou zerar valores, use “Administrar” com uma conta autorizada.</p><div class="tool-buttons"><button id="btn-exportar" type="button">Baixar backup</button><button id="btn-importar" type="button">Restaurar backup</button><button id="btn-zerar" class="danger" type="button">Zerar simulação</button></div><input id="backup-file" type="file" accept=".json,application/json" hidden></details>
-<p class="footnote">Os totais acompanham a busca e o bairro selecionado, somando somente as seções exibidas. Ao limpar os filtros, os totais gerais voltam a aparecer. Os votos correspondem a dois cargos diferentes; a soma não representa quantidade de eleitores. A base de 06/10/2026 é consultada automaticamente, sem login.</p>
+
+<p class="footnote">Os totais acompanham a busca e o bairro selecionado, somando somente as seções exibidas. Ao limpar os filtros, os totais gerais voltam a aparecer. Os votos correspondem a dois cargos diferentes; a soma não representa quantidade de eleitores. </p>
 </div>
-<dialog id="install-dialog" class="dialog" aria-labelledby="install-title"><div class="dialog-head"><h2 id="install-title">Instalar no celular</h2><button type="button" data-close aria-label="Fechar instruções">✕</button></div><p>Tenha o Mapeamento na tela inicial e abra em uma janela própria.</p><p id="install-notice" class="notice"></p><button id="btn-native-install" class="primary" hidden>Instalar neste dispositivo</button><section id="ios-guide"><h3>iPhone e iPad</h3><ol><li>Abra o endereço do painel no <strong>Safari</strong>.</li><li>Toque em <strong>Compartilhar</strong> e em <strong>Adicionar à Tela de Início</strong>.</li><li>Se aparecer, ative <strong>Abrir como App da Web</strong>. Toque em <strong>Adicionar</strong>.</li></ol></section><section id="android-guide"><h3>Android</h3><ol><li>Abra o endereço do painel no <strong>Chrome</strong>.</li><li>Use o botão de instalação, quando disponível, ou abra o menu <strong>⋮</strong>.</li><li>Toque em <strong>Instalar aplicativo</strong> ou <strong>Adicionar à tela inicial</strong> e confirme.</li></ol></section><p class="notice">Os dados ficam no dispositivo. Antes de mudar de navegador ou instalar, use “Baixar backup”; depois, restaure no app se necessário.</p></dialog>
+<dialog id="install-dialog" class="dialog" aria-labelledby="install-title"><div class="dialog-head"><h2 id="install-title">Instalar no celular</h2><button type="button" data-close aria-label="Fechar instruções">✕</button></div><p>Tenha o Mapeamento na tela inicial e abra em uma janela própria.</p><p id="install-notice" class="notice"></p><button id="btn-native-install" class="primary" hidden>Instalar neste dispositivo</button><section id="ios-guide"><h3>iPhone e iPad</h3><ol><li>Abra o endereço do painel no <strong>Safari</strong>.</li><li>Toque em <strong>Compartilhar</strong> e em <strong>Adicionar à Tela de Início</strong>.</li><li>Se aparecer, ative <strong>Abrir como App da Web</strong>. Toque em <strong>Adicionar</strong>.</li></ol></section><section id="android-guide"><h3>Android</h3><ol><li>Abra o endereço do painel no <strong>Chrome</strong>.</li><li>Use o botão de instalação, quando disponível, ou abra o menu <strong>⋮</strong>.</li><li>Toque em <strong>Instalar aplicativo</strong> ou <strong>Adicionar à tela inicial</strong> e confirme.</li></ol></section><p class="notice">Os votos são carregados automaticamente. Depois da primeira consulta, uma cópia fica disponível neste dispositivo.</p></dialog>
 <dialog id="confirm-dialog" class="dialog" aria-labelledby="confirm-title"><h2 id="confirm-title">Confirmar alteração</h2><p id="confirm-text" style="margin-top:12px"></p><div class="dialog-actions"><button id="confirm-cancel">Cancelar</button><button id="confirm-ok" class="danger">Confirmar</button></div></dialog>
+<dialog id="admin-dialog" class="dialog admin-dialog" aria-labelledby="admin-title"><div class="dialog-head"><h2 id="admin-title">Área administrativa</h2><button id="admin-close" type="button" aria-label="Fechar área administrativa">✕</button></div><section class="cloud-panel" aria-label="Sincronização administrativa"><p id="cloud-status" role="status">Carregando os votos automaticamente…</p><p class="sync-note" id="cloud-account"></p><div class="cloud-actions"><button id="admin-edit" type="button">Editar votos</button><button id="cloud-load" class="primary">Atualizar votos</button><button id="cloud-sync" hidden disabled>Salvar agora</button><button id="cloud-logout" hidden>Sair</button></div></section><div class="statusline"><span id="save-status" role="status"><span class="status-dot"></span>Salvamento automático neste dispositivo</span><span id="connection-status">Verificando conexão…</span></div><details class="tools"><summary>Backup e gerenciamento dos dados</summary><p>Os votos são salvos na nuvem após a edição. Baixe um backup antes de restaurar ou zerar os dados.</p><div class="tool-buttons"><button id="btn-exportar" type="button">Baixar backup</button><button id="btn-importar" type="button">Restaurar backup</button><button id="btn-zerar" class="danger" type="button">Zerar simulação</button></div><input id="backup-file" type="file" accept=".json,application/json" hidden></details></dialog>
 <dialog id="login-dialog" class="dialog" aria-labelledby="login-title"><div class="dialog-head"><h2 id="login-title">Administrar o mapeamento</h2><button id="login-close" type="button" aria-label="Fechar">✕</button></div><p>O acesso de administrador permite alterar e salvar os votos. A consulta não exige login.</p><form id="login-form" class="login-form" style="margin-top:16px"><label class="field"><span>E-mail</span><input id="login-email" type="email" autocomplete="username" required></label><label class="field"><span>Senha</span><input id="login-password" type="password" autocomplete="current-password" required></label><p id="login-message" role="status"></p><button id="login-submit" class="primary" type="submit">Entrar</button></form></dialog>
 <dialog id="resolve-dialog" class="dialog" aria-labelledby="resolve-title"><h2 id="resolve-title">Há duas versões do mapeamento</h2><p id="resolve-message" style="margin-top:12px">A nuvem e este aparelho têm dados diferentes. Baixe uma cópia antes de escolher qual versão manter.</p><div class="compare-grid"><p id="compare-local"></p><p id="compare-remote"></p></div><button id="resolve-backup">Baixar backup deste aparelho</button><button id="resolve-remote" class="primary">Usar versão da nuvem</button><button id="resolve-local">Enviar versão deste aparelho</button><button id="resolve-cancel" style="margin-top:10px;width:100%">Decidir depois</button></dialog>
 <div id="toast" class="toast" role="status" hidden></div>
@@ -285,7 +296,8 @@ function aplicarCadastroNuvem(rows){
  try{localStorage.setItem(CADASTRO_KEY,JSON.stringify(cadastro));}catch{}
  atualizarFiltroBairros();renderizarTabela();
 }
-let estadoVotos={}; let storageBroken=false; let badStoredData=false;
+const VOTOS_CONFERIDOS={"31":{"benes":12,"neilton":15},"32":{"benes":15,"neilton":17},"33":{"benes":17,"neilton":11},"34":{"benes":19,"neilton":18},"35":{"benes":26,"neilton":16},"36":{"benes":33,"neilton":18},"37":{"benes":22,"neilton":21},"38":{"benes":18,"neilton":16},"39":{"benes":27,"neilton":18},"40":{"benes":7,"neilton":4},"41":{"benes":10,"neilton":10},"42":{"benes":11,"neilton":13},"43":{"benes":13,"neilton":14},"44":{"benes":24,"neilton":20},"45":{"benes":13,"neilton":16},"46":{"benes":21,"neilton":21},"47":{"benes":20,"neilton":18},"48":{"benes":23,"neilton":15},"49":{"benes":12,"neilton":10},"50":{"benes":15,"neilton":10},"51":{"benes":16,"neilton":8},"52":{"benes":9,"neilton":5},"53":{"benes":26,"neilton":26},"54":{"benes":33,"neilton":29},"55":{"benes":31,"neilton":27},"56":{"benes":30,"neilton":23},"57":{"benes":27,"neilton":23},"58":{"benes":21,"neilton":19},"59":{"benes":18,"neilton":17},"60":{"benes":44,"neilton":33},"61":{"benes":17,"neilton":12},"62":{"benes":24,"neilton":16},"63":{"benes":22,"neilton":14},"64":{"benes":15,"neilton":13},"65":{"benes":26,"neilton":23},"66":{"benes":32,"neilton":14},"67":{"benes":24,"neilton":24},"68":{"benes":28,"neilton":20},"69":{"benes":24,"neilton":18},"70":{"benes":24,"neilton":17},"71":{"benes":14,"neilton":12},"72":{"benes":25,"neilton":11},"73":{"benes":26,"neilton":19},"74":{"benes":14,"neilton":8},"75":{"benes":18,"neilton":14},"77":{"benes":14,"neilton":15},"80":{"benes":17,"neilton":13},"81":{"benes":17,"neilton":10},"82":{"benes":26,"neilton":18},"83":{"benes":12,"neilton":12},"84":{"benes":8,"neilton":5},"85":{"benes":5,"neilton":4},"86":{"benes":6,"neilton":6},"87":{"benes":7,"neilton":5},"88":{"benes":10,"neilton":7},"89":{"benes":11,"neilton":7},"90":{"benes":12,"neilton":9},"91":{"benes":9,"neilton":7},"92":{"benes":16,"neilton":9},"93":{"benes":12,"neilton":10},"96":{"benes":29,"neilton":20},"98":{"benes":11,"neilton":7},"99":{"benes":23,"neilton":17},"100":{"benes":22,"neilton":14},"103":{"benes":17,"neilton":16},"104":{"benes":11,"neilton":9},"105":{"benes":6,"neilton":4},"108":{"benes":24,"neilton":22},"113":{"benes":21,"neilton":14},"114":{"benes":25,"neilton":14},"115":{"benes":16,"neilton":12},"116":{"benes":21,"neilton":21},"118":{"benes":24,"neilton":14},"119":{"benes":21,"neilton":16},"124":{"benes":7,"neilton":8},"125":{"benes":22,"neilton":13},"126":{"benes":17,"neilton":9},"127":{"benes":4,"neilton":1},"128":{"benes":9,"neilton":12},"129":{"benes":23,"neilton":7},"130":{"benes":16,"neilton":7},"131":{"benes":13,"neilton":11},"132":{"benes":30,"neilton":12},"133":{"benes":33,"neilton":8},"134":{"benes":9,"neilton":5},"135":{"benes":18,"neilton":13},"136":{"benes":11,"neilton":10},"137":{"benes":113,"neilton":113},"138":{"benes":13,"neilton":3},"141":{"benes":18,"neilton":7},"142":{"benes":17,"neilton":8},"143":{"benes":7,"neilton":17},"144":{"benes":95,"neilton":82},"145":{"benes":25,"neilton":22},"146":{"benes":7,"neilton":8},"147":{"benes":21,"neilton":16},"148":{"benes":8,"neilton":1},"156":{"benes":4,"neilton":4},"160":{"benes":17,"neilton":16},"161":{"benes":24,"neilton":18},"162":{"benes":33,"neilton":22},"164":{"benes":6,"neilton":3},"165":{"benes":29,"neilton":13},"166":{"benes":24,"neilton":16},"167":{"benes":14,"neilton":11},"168":{"benes":14,"neilton":8},"169":{"benes":44,"neilton":17},"170":{"benes":59,"neilton":43},"171":{"benes":25,"neilton":15},"172":{"benes":12,"neilton":5},"174":{"benes":42,"neilton":24},"175":{"benes":22,"neilton":18},"176":{"benes":8,"neilton":3},"177":{"benes":34,"neilton":25},"178":{"benes":11,"neilton":9},"180":{"benes":24,"neilton":12},"182":{"benes":15,"neilton":11},"183":{"benes":18,"neilton":13},"184":{"benes":41,"neilton":36},"186":{"benes":7,"neilton":4},"189":{"benes":30,"neilton":11},"190":{"benes":17,"neilton":15},"191":{"benes":18,"neilton":10},"192":{"benes":21,"neilton":21},"194":{"benes":34,"neilton":12},"195":{"benes":16,"neilton":8},"196":{"benes":22,"neilton":16},"197":{"benes":8,"neilton":6},"198":{"benes":13,"neilton":3},"199":{"benes":5,"neilton":7},"200":{"benes":12,"neilton":9},"202":{"benes":17,"neilton":7},"207":{"benes":26,"neilton":19},"208":{"benes":4,"neilton":8},"209":{"benes":21,"neilton":11},"210":{"benes":23,"neilton":9},"212":{"benes":13,"neilton":10},"213":{"benes":27,"neilton":15},"214":{"benes":52,"neilton":46},"215":{"benes":12,"neilton":10},"216":{"benes":99,"neilton":91},"217":{"benes":32,"neilton":12},"218":{"benes":28,"neilton":20},"219":{"benes":24,"neilton":8},"221":{"benes":20,"neilton":11},"222":{"benes":31,"neilton":16},"223":{"benes":39,"neilton":34},"224":{"benes":14,"neilton":8},"225":{"benes":19,"neilton":13},"226":{"benes":13,"neilton":9},"227":{"benes":12,"neilton":8},"228":{"benes":11,"neilton":7},"232":{"benes":24,"neilton":14},"234":{"benes":40,"neilton":29},"236":{"benes":12,"neilton":6},"237":{"benes":28,"neilton":14},"238":{"benes":11,"neilton":16},"239":{"benes":19,"neilton":19},"240":{"benes":17,"neilton":9},"241":{"benes":50,"neilton":40},"242":{"benes":15,"neilton":7},"243":{"benes":4,"neilton":2},"259":{"benes":18,"neilton":12},"261":{"benes":24,"neilton":9},"262":{"benes":5,"neilton":3},"263":{"benes":16,"neilton":7},"264":{"benes":3,"neilton":2},"265":{"benes":37,"neilton":32},"266":{"benes":8,"neilton":10},"268":{"benes":19,"neilton":9},"269":{"benes":0,"neilton":0},"271":{"benes":11,"neilton":5},"272":{"benes":6,"neilton":5}};
+let estadoVotos=JSON.parse(JSON.stringify(VOTOS_CONFERIDOS)); let storageBroken=false; let badStoredData=false;
 function validarVotos(value){
  if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Formato inválido');
  const out={};
@@ -360,7 +372,7 @@ function atualizarGraficos(lista=obterDadosFiltrados()){
  $('chart-scope').textContent=(bairro?bairro+' · ':'')+(busca?'Busca: '+busca+' · ':'')+`${lista.length} seções · ${model.preenchidas} com valores preenchidos`;
  $('chart-empty').hidden=(model.benes+model.neilton)>0;
  $('chart-empty').querySelector('strong').textContent=lista.length?'Nenhum voto registrado neste filtro':'Nenhuma seção encontrada';
- $('chart-empty').querySelector('p').textContent=lista.length?'Use “Atualizar votos” para consultar a base. Se já estiver atualizada, não há votos neste filtro.':'Limpe a busca ou escolha outro bairro para visualizar os gráficos.';
+ $('chart-empty').querySelector('p').textContent=lista.length?'Não há votos registrados nas seções deste filtro.':'Limpe a busca ou escolha outro bairro para visualizar os gráficos.';
  $('chart-export').disabled=!lista.length;
  desenharPizza('benes',model);desenharPizza('neilton',model);desenharBarras(model);desenharRanking(model);
 }
@@ -403,17 +415,19 @@ function atualizarResumos(lista=obterDadosFiltrados()){
  $('filtro-benes').textContent=fmt(b);$('filtro-neilton').textContent=fmt(n);$('filtro-total').textContent=fmt(b+n);
  atualizarGraficos(lista);
 }
+let tabelaEmEdicao=false;
 function renderizarTabela(){
+ const editavel=typeof podeEditar==='function'&&podeEditar();tabelaEmEdicao=editavel;
  const lista=obterDadosFiltrados();
  atualizarResumos(lista);
- $('result-count').textContent=lista.length+' de '+dadosIniciais.length+' seções • Preencha os votos abaixo';$('empty-state').hidden=lista.length>0;
- $('tabela-corpo').innerHTML=lista.map(d=>`<tr><td class="district">${escapeHTML(d.bairro)}</td><td class="place">${escapeHTML(d.local)}</td><td class="section"><span class="mobile-label">Seção</span>${d.secao}</td><td class="electors"><span class="mobile-label">Eleitores</span>${d.eleitores}</td>${['benes','neilton'].map(c=>`<td class="vote-cell ${c}"><label><span class="mobile-label ${c}-text">Votos ${c.toUpperCase()}</span><input type="number" min="0" max="2147483647" step="1" inputmode="numeric" pattern="[0-9]*" placeholder="0" readonly aria-readonly="true" aria-label="Votos ${c.toUpperCase()}, seção ${d.secao}" data-secao="${d.secao}" data-campo="${c}" value="${estadoVotos[d.secao]?.[c]??''}"></label></td>`).join('')}</tr>`).join('');if(typeof atualizarModoEdicao==='function')atualizarModoEdicao();}
+ $('result-count').textContent=lista.length+' de '+dadosIniciais.length+' seções • '+(editavel?'Edição habilitada':'Votos por seção');$('empty-state').hidden=lista.length>0;
+ $('tabela-corpo').innerHTML=lista.map(d=>`<tr><td class="district">${escapeHTML(d.bairro)}</td><td class="place">${escapeHTML(d.local)}</td><td class="section"><span class="mobile-label">Seção</span>${d.secao}</td><td class="electors"><span class="mobile-label">Eleitores</span>${d.eleitores}</td>${['benes','neilton'].map(c=>`<td class="vote-cell ${c}"><label><span class="mobile-label ${c}-text">Votos ${c.toUpperCase()}</span>${editavel?`<input type="number" min="0" max="2147483647" step="1" inputmode="numeric" pattern="[0-9]*" placeholder="0" aria-label="Votos ${c.toUpperCase()}, seção ${d.secao}" data-secao="${d.secao}" data-campo="${c}" value="${estadoVotos[d.secao]?.[c]??''}">`:`<span class="vote-readonly" aria-label="Votos ${c.toUpperCase()}, seção ${d.secao}">${Object.hasOwn(estadoVotos,d.secao)?fmt(estadoVotos[d.secao][c]):'—'}</span>`}</label></td>`).join('')}</tr>`).join('');if(typeof atualizarModoEdicao==='function')atualizarModoEdicao();}
 $('tabela-corpo').addEventListener('input',e=>{const el=e.target;if(!el.matches('input[data-secao]'))return;if(!podeEditar()){el.value=estadoVotos[el.dataset.secao]?.[el.dataset.campo]??'';return;}const n=el.value===''?0:Number(el.value);if(el.validity.badInput||!Number.isSafeInteger(n)||n<0||n>2147483647){el.setCustomValidity('Informe um número inteiro igual ou maior que zero.');el.reportValidity();return;}el.setCustomValidity('');const s=el.dataset.secao,c=el.dataset.campo;if(!estadoVotos[s])estadoVotos[s]={benes:0,neilton:0};estadoVotos[s][c]=n;salvar();atualizarResumos();});
 $('tabela-corpo').addEventListener('focusout',e=>{const el=e.target;if(el.matches('input[data-secao]')&&!el.checkValidity()){el.value=estadoVotos[el.dataset.secao]?.[el.dataset.campo]??'';el.setCustomValidity('');}});
 atualizarFiltroBairros();
 $('busca-geral').addEventListener('input',renderizarTabela);$('filtro-bairro').addEventListener('change',renderizarTabela);$('btn-limpar').onclick=()=>{$('busca-geral').value='';$('filtro-bairro').value='';renderizarTabela();};
 let toastTimer;function avisar(text){$('toast').textContent=text;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,5000);}
-function confirmar(text,action){$('confirm-text').textContent=text;$('confirm-ok').onclick=()=>{$('confirm-dialog').close();action();};$('confirm-dialog').showModal();$('confirm-cancel').focus();}
+function confirmar(text,action){if($('admin-dialog').open)$('admin-dialog').close();$('confirm-text').textContent=text;$('confirm-ok').onclick=()=>{$('confirm-dialog').close();action();};$('confirm-dialog').showModal();$('confirm-cancel').focus();}
 $('confirm-cancel').onclick=()=>$('confirm-dialog').close();
 $('btn-zerar').onclick=()=>{if(!podeEditar())return;confirmar('Zerar os votos de TODAS as seções, inclusive as que estão fora do filtro? Baixe um backup antes se quiser guardar a simulação.',()=>{if(!podeEditar())return;estadoVotos={};badStoredData=false;const ok=salvar();atualizarResumos();renderizarTabela();avisar(ok?'Simulação zerada.':'Simulação zerada nesta sessão. O armazenamento está indisponível.');});};
 $('btn-exportar').onclick=()=>{const payload={app:'mapeamento-eleitoral',versao:1,exportadoEm:new Date().toISOString(),votos:estadoVotos};const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='mapeamento-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);};
@@ -463,13 +477,16 @@ function setSession(value){cloudSession=value;try{if(value)sessionStorage.setIte
 function podeEditar(){return !!cloudSession&&cloudReady&&!cloudPaused;}
 function atualizarModoEdicao(){
  const editavel=podeEditar();
+ if(tabelaEmEdicao!==editavel){renderizarTabela();return;}
+ $('admin-edit').disabled=!editavel;
  document.querySelectorAll('#tabela-corpo input[data-secao]').forEach(el=>{el.readOnly=!editavel;el.tabIndex=editavel?0:-1;el.setAttribute('aria-readonly',String(!editavel));});
  $('btn-importar').disabled=!editavel;$('btn-zerar').disabled=!editavel;
- $('result-count').textContent=obterDadosFiltrados().length+' de '+dadosIniciais.length+' seções • '+(editavel?'Edição habilitada':'Somente consulta');
+ $('result-count').textContent=obterDadosFiltrados().length+' de '+dadosIniciais.length+' seções • '+(editavel?'Edição habilitada':'Votos por seção');
 }
 function controls(){
  const logged=!!cloudSession;
- $('cloud-login').hidden=logged;$('cloud-logout').hidden=!logged;
+ $('cloud-login').hidden=false;$('cloud-logout').hidden=!logged;
+ $('cloud-login').setAttribute('aria-label',logged?'Abrir área administrativa':'Acesso do administrador');
  $('cloud-sync').hidden=!logged;$('cloud-sync').disabled=!logged||cloudBusy||!cloudReady||cloudPaused;
  $('cloud-load').disabled=cloudBusy;$('cloud-login').disabled=cloudBusy;
  $('cloud-logout').disabled=cloudBusy;
@@ -527,6 +544,7 @@ async function readCloud(){
 }
 function summarize(votes){let b=0,n=0;for(const v of Object.values(votes)){b+=v.benes;n+=v.neilton;}return Object.keys(votes).length+' seções preenchidas · BENES '+fmt(b)+' · NEILTON '+fmt(n);}
 function showChoices(record){
+ if($('admin-dialog').open)$('admin-dialog').close();
  remoteChoice=record;cloudPaused=true;cloudReady=false;
  $('compare-local').textContent='Neste aparelho: '+summarize(estadoVotos);
  $('compare-remote').textContent='Na nuvem (revisão '+record.revisao+'): '+summarize(record.votos);
@@ -577,7 +595,12 @@ async function syncCloud(){
  if(conflict){await loadCloud();}
  else if(success&&cloudDirty)scheduleSync();
 }
-$('cloud-login').onclick=()=>{$('login-message').textContent='';$('login-dialog').showModal();$('login-email').focus();};
+$('cloud-login').onclick=()=>{
+ if(cloudSession){$('admin-dialog').showModal();return;}
+ $('login-message').textContent='';$('login-dialog').showModal();$('login-email').focus();
+};
+$('admin-close').onclick=()=>$('admin-dialog').close();
+$('admin-edit').onclick=()=>{if(!podeEditar())return;$('admin-dialog').close();selecionarVisao('secoes');(document.querySelector('#tabela-corpo input')||$('view-secoes')).focus();};
 $('login-close').onclick=()=>$('login-dialog').close();
 $('login-form').onsubmit=async e=>{
  e.preventDefault();$('login-submit').disabled=true;$('login-message').textContent='Entrando…';
@@ -585,13 +608,13 @@ $('login-form').onsubmit=async e=>{
   const session=await http('/auth/v1/token?grant_type=password',{method:'POST',body:{email:$('login-email').value.trim(),password:$('login-password').value}});
   if(!session?.access_token||!session?.user?.id)throw Error('Resposta de login inválida.');
   session.expires_at=session.expires_at||Math.floor(Date.now()/1000)+(session.expires_in||3600);
-  setSession(session);$('login-password').value='';$('login-dialog').close();cloudReady=false;cloudPaused=false;controls();await loadCloud();
+  setSession(session);$('login-password').value='';$('login-dialog').close();cloudReady=false;cloudPaused=false;controls();await loadCloud();if(cloudSession&&!$('resolve-dialog').open)$('admin-dialog').showModal();
  }catch(error){$('login-message').textContent=explainError(error,true);}
  finally{$('login-submit').disabled=false;}
 };
 $('cloud-sync').onclick=()=>syncCloud();$('cloud-load').onclick=()=>loadCloud();
 $('cloud-logout').onclick=async()=>{
- if(cloudBusy)return;clearTimeout(syncTimer);const token=cloudSession?.access_token;
+ if(cloudBusy)return;$('admin-dialog').close();clearTimeout(syncTimer);const token=cloudSession?.access_token;
  setSession(null);cloudReady=false;cloudPaused=false;remoteChoice=null;controls();
  cloudStatus('Modo de consulta. Atualizando votos…');
  if(token)try{await http('/auth/v1/logout?scope=local',{method:'POST',token});}catch{}
