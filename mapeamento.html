@@ -29,13 +29,14 @@
 
 .bar-values{background:none;position:relative}.bar-values::before{content:"";position:absolute;inset:0 42px 0 0;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(25% - 1px),#edf2ef calc(25% - 1px),#edf2ef 25%);pointer-events:none}
 
+.vote-cell input[readonly]{background:transparent;border-color:transparent;box-shadow:none;cursor:default;appearance:textfield}.vote-cell input[readonly]::-webkit-inner-spin-button,.vote-cell input[readonly]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 </style>
 </head>
 <body>
 <div class="shell">
 <header class="hero"><div><p class="eyebrow">Painel de acompanhamento</p><h1>Mapeamento Eleitoral</h1><p class="subtitle">Votos, gráficos e seções de Macaíba/RN</p></div><button id="btn-instalar" type="button">＋ Instalar aplicativo</button></header>
 <div class="statusline"><span id="save-status" role="status"><span class="status-dot"></span>Salvamento automático neste dispositivo</span><span id="connection-status">Verificando conexão…</span></div>
-<section class="cloud-panel" aria-label="Salvamento na nuvem"><h2>Meu mapeamento na nuvem</h2><p id="cloud-status" role="status">Entre para carregar a base de 06/10/2026 do Supabase.</p><p class="sync-note" id="cloud-account"></p><div class="cloud-actions"><button id="cloud-login" class="primary">Entrar na nuvem</button><button id="cloud-sync" disabled>Salvar agora</button><button id="cloud-load" disabled>Atualizar da nuvem</button><button id="cloud-logout" hidden>Sair</button></div></section>
+<section class="cloud-panel" aria-label="Dados do mapeamento"><h2>Dados do mapeamento</h2><p id="cloud-status" role="status">Carregando os votos automaticamente…</p><p class="sync-note" id="cloud-account"></p><div class="cloud-actions"><button id="cloud-load" class="primary">Atualizar votos</button><button id="cloud-login">Administrar</button><button id="cloud-sync" hidden disabled>Salvar agora</button><button id="cloud-logout" hidden>Sair</button></div></section>
 <section class="stats" id="resumo-painel" aria-label="Totais das seções exibidas">
 <div class="stat"><span class="stat-label">Total eleitores</span><strong id="resumo-eleitores">0</strong><small id="total-secoes"></small></div>
 <div class="stat apurados"><span class="stat-label">Votos registrados</span><strong id="resumo-apurados">0</strong><small id="percentual-apurados">0% dos eleitores</small></div>
@@ -50,7 +51,7 @@
 <section id="painel-graficos" class="analytics" aria-labelledby="analytics-title">
  <div class="analytics-heading"><div><p class="analytics-kicker">LEITURA DOS RESULTADOS</p><h2 id="analytics-title">Os votos em perspectiva</h2><p id="chart-scope" role="status"></p></div><button id="chart-export" type="button">↓ Baixar dados CSV</button></div>
  <p class="chart-explainer">BENES · Deputado federal &nbsp; / &nbsp; NEILTON · Deputado estadual. Cada percentual mostra a distribuição dos votos do próprio candidato no filtro atual.</p>
- <div id="chart-empty" class="chart-empty" hidden><strong>Nenhum voto registrado neste filtro</strong><p>Entre na nuvem, restaure um backup ou preencha os votos em “Seções e votos”.</p></div>
+ <div id="chart-empty" class="chart-empty" hidden><strong>Nenhum voto registrado neste filtro</strong><p>Use “Atualizar votos” para consultar a base. Se já estiver atualizada, não há votos neste filtro.</p></div>
  <div class="donut-grid">
   <article class="chart-card"><div class="chart-title"><span class="candidate-tag benes-tag">BENES · 4444</span><span class="chart-type">Pizza por bairro</span></div><h3>De onde vêm os votos</h3><div id="pie-benes" class="donut-body"></div></article>
   <article class="chart-card"><div class="chart-title"><span class="candidate-tag neilton-tag">NEILTON · 11111</span><span class="chart-type">Pizza por bairro</span></div><h3>De onde vêm os votos</h3><div id="pie-neilton" class="donut-body"></div></article>
@@ -71,13 +72,13 @@
 <div class="filter-summary" role="status" aria-live="polite" aria-atomic="true"><strong id="filtro-escopo">Soma geral</strong><span class="benes-text">BENES <b id="filtro-benes">0</b></span><span class="neilton-text">NEILTON <b id="filtro-neilton">0</b></span><span>Total dos dois cargos <b id="filtro-total">0</b></span></div>
 <div class="table-wrap"><table aria-label="Seções eleitorais e votos por candidato"><thead><tr><th scope="col">Bairro / distrito</th><th scope="col">Local de votação</th><th scope="col">Seção</th><th scope="col">Eleitores</th><th scope="col" class="benes-text">Votos BENES</th><th scope="col" class="neilton-text">Votos NEILTON</th></tr></thead><tbody id="tabela-corpo"></tbody></table><div id="empty-state" class="empty" hidden><strong>Nenhuma seção encontrada</strong><p>Tente outro nome ou limpe os filtros.</p></div></div>
 </main>
-<details class="tools"><summary>Backup e gerenciamento dos dados</summary><p>Entre na sua conta para carregar a base do Supabase. Após conectar, suas alterações são salvas automaticamente na nuvem. Sem conexão, mantenha esta aba aberta ou baixe um backup; o painel indicará o que ainda não foi enviado.</p><div class="tool-buttons"><button id="btn-exportar" type="button">Baixar backup</button><button id="btn-importar" type="button">Restaurar backup</button><button id="btn-zerar" class="danger" type="button">Zerar simulação</button></div><input id="backup-file" type="file" accept=".json,application/json" hidden></details>
-<p class="footnote">Os totais acompanham a busca e o bairro selecionado, somando somente as seções exibidas. Ao limpar os filtros, os totais gerais voltam a aparecer. Os votos correspondem a dois cargos diferentes; a soma não representa quantidade de eleitores. A base de 06/10/2026 é carregada após entrar na nuvem.</p>
+<details class="tools"><summary>Backup e gerenciamento dos dados</summary><p>A consulta carrega os votos automaticamente, sem e-mail. Você pode baixar uma cópia dos dados. Para editar, restaurar um backup ou zerar valores, use “Administrar” com uma conta autorizada.</p><div class="tool-buttons"><button id="btn-exportar" type="button">Baixar backup</button><button id="btn-importar" type="button">Restaurar backup</button><button id="btn-zerar" class="danger" type="button">Zerar simulação</button></div><input id="backup-file" type="file" accept=".json,application/json" hidden></details>
+<p class="footnote">Os totais acompanham a busca e o bairro selecionado, somando somente as seções exibidas. Ao limpar os filtros, os totais gerais voltam a aparecer. Os votos correspondem a dois cargos diferentes; a soma não representa quantidade de eleitores. A base de 06/10/2026 é consultada automaticamente, sem login.</p>
 </div>
 <dialog id="install-dialog" class="dialog" aria-labelledby="install-title"><div class="dialog-head"><h2 id="install-title">Instalar no celular</h2><button type="button" data-close aria-label="Fechar instruções">✕</button></div><p>Tenha o Mapeamento na tela inicial e abra em uma janela própria.</p><p id="install-notice" class="notice"></p><button id="btn-native-install" class="primary" hidden>Instalar neste dispositivo</button><section id="ios-guide"><h3>iPhone e iPad</h3><ol><li>Abra o endereço do painel no <strong>Safari</strong>.</li><li>Toque em <strong>Compartilhar</strong> e em <strong>Adicionar à Tela de Início</strong>.</li><li>Se aparecer, ative <strong>Abrir como App da Web</strong>. Toque em <strong>Adicionar</strong>.</li></ol></section><section id="android-guide"><h3>Android</h3><ol><li>Abra o endereço do painel no <strong>Chrome</strong>.</li><li>Use o botão de instalação, quando disponível, ou abra o menu <strong>⋮</strong>.</li><li>Toque em <strong>Instalar aplicativo</strong> ou <strong>Adicionar à tela inicial</strong> e confirme.</li></ol></section><p class="notice">Os dados ficam no dispositivo. Antes de mudar de navegador ou instalar, use “Baixar backup”; depois, restaure no app se necessário.</p></dialog>
 <dialog id="confirm-dialog" class="dialog" aria-labelledby="confirm-title"><h2 id="confirm-title">Confirmar alteração</h2><p id="confirm-text" style="margin-top:12px"></p><div class="dialog-actions"><button id="confirm-cancel">Cancelar</button><button id="confirm-ok" class="danger">Confirmar</button></div></dialog>
-<dialog id="login-dialog" class="dialog" aria-labelledby="login-title"><div class="dialog-head"><h2 id="login-title">Entrar no mapeamento</h2><button id="login-close" type="button" aria-label="Fechar">✕</button></div><p>Use o e-mail e a senha da conta autorizada no seu Supabase.</p><form id="login-form" class="login-form" style="margin-top:16px"><label class="field"><span>E-mail</span><input id="login-email" type="email" autocomplete="username" required></label><label class="field"><span>Senha</span><input id="login-password" type="password" autocomplete="current-password" required></label><p id="login-message" role="status"></p><button id="login-submit" class="primary" type="submit">Entrar</button></form></dialog>
-<dialog id="resolve-dialog" class="dialog" aria-labelledby="resolve-title"><h2 id="resolve-title">Há duas versões do mapeamento</h2><p style="margin-top:12px">A nuvem e este aparelho têm dados diferentes. Escolha qual versão deseja manter. A versão enviada substituirá os votos de todas as seções.</p><div class="compare-grid"><p id="compare-local"></p><p id="compare-remote"></p></div><button id="resolve-backup">Baixar backup deste aparelho</button><button id="resolve-remote" class="primary">Usar versão da nuvem</button><button id="resolve-local">Enviar versão deste aparelho</button><button id="resolve-cancel" style="margin-top:10px;width:100%">Decidir depois</button></dialog>
+<dialog id="login-dialog" class="dialog" aria-labelledby="login-title"><div class="dialog-head"><h2 id="login-title">Administrar o mapeamento</h2><button id="login-close" type="button" aria-label="Fechar">✕</button></div><p>O acesso de administrador permite alterar e salvar os votos. A consulta não exige login.</p><form id="login-form" class="login-form" style="margin-top:16px"><label class="field"><span>E-mail</span><input id="login-email" type="email" autocomplete="username" required></label><label class="field"><span>Senha</span><input id="login-password" type="password" autocomplete="current-password" required></label><p id="login-message" role="status"></p><button id="login-submit" class="primary" type="submit">Entrar</button></form></dialog>
+<dialog id="resolve-dialog" class="dialog" aria-labelledby="resolve-title"><h2 id="resolve-title">Há duas versões do mapeamento</h2><p id="resolve-message" style="margin-top:12px">A nuvem e este aparelho têm dados diferentes. Baixe uma cópia antes de escolher qual versão manter.</p><div class="compare-grid"><p id="compare-local"></p><p id="compare-remote"></p></div><button id="resolve-backup">Baixar backup deste aparelho</button><button id="resolve-remote" class="primary">Usar versão da nuvem</button><button id="resolve-local">Enviar versão deste aparelho</button><button id="resolve-cancel" style="margin-top:10px;width:100%">Decidir depois</button></dialog>
 <div id="toast" class="toast" role="status" hidden></div>
 <script>
 'use strict';
@@ -359,7 +360,7 @@ function atualizarGraficos(lista=obterDadosFiltrados()){
  $('chart-scope').textContent=(bairro?bairro+' · ':'')+(busca?'Busca: '+busca+' · ':'')+`${lista.length} seções · ${model.preenchidas} com valores preenchidos`;
  $('chart-empty').hidden=(model.benes+model.neilton)>0;
  $('chart-empty').querySelector('strong').textContent=lista.length?'Nenhum voto registrado neste filtro':'Nenhuma seção encontrada';
- $('chart-empty').querySelector('p').textContent=lista.length?'Entre na nuvem, restaure um backup ou preencha os votos em “Seções e votos”.':'Limpe a busca ou escolha outro bairro para visualizar os gráficos.';
+ $('chart-empty').querySelector('p').textContent=lista.length?'Use “Atualizar votos” para consultar a base. Se já estiver atualizada, não há votos neste filtro.':'Limpe a busca ou escolha outro bairro para visualizar os gráficos.';
  $('chart-export').disabled=!lista.length;
  desenharPizza('benes',model);desenharPizza('neilton',model);desenharBarras(model);desenharRanking(model);
 }
@@ -406,18 +407,18 @@ function renderizarTabela(){
  const lista=obterDadosFiltrados();
  atualizarResumos(lista);
  $('result-count').textContent=lista.length+' de '+dadosIniciais.length+' seções • Preencha os votos abaixo';$('empty-state').hidden=lista.length>0;
- $('tabela-corpo').innerHTML=lista.map(d=>`<tr><td class="district">${escapeHTML(d.bairro)}</td><td class="place">${escapeHTML(d.local)}</td><td class="section"><span class="mobile-label">Seção</span>${d.secao}</td><td class="electors"><span class="mobile-label">Eleitores</span>${d.eleitores}</td>${['benes','neilton'].map(c=>`<td class="vote-cell ${c}"><label><span class="mobile-label ${c}-text">Votos ${c.toUpperCase()}</span><input type="number" min="0" max="2147483647" step="1" inputmode="numeric" pattern="[0-9]*" placeholder="0" aria-label="Votos ${c.toUpperCase()}, seção ${d.secao}" data-secao="${d.secao}" data-campo="${c}" value="${estadoVotos[d.secao]?.[c]??''}"></label></td>`).join('')}</tr>`).join('');}
-$('tabela-corpo').addEventListener('input',e=>{const el=e.target;if(!el.matches('input[data-secao]'))return;const n=el.value===''?0:Number(el.value);if(el.validity.badInput||!Number.isSafeInteger(n)||n<0||n>2147483647){el.setCustomValidity('Informe um número inteiro igual ou maior que zero.');el.reportValidity();return;}el.setCustomValidity('');const s=el.dataset.secao,c=el.dataset.campo;if(!estadoVotos[s])estadoVotos[s]={benes:0,neilton:0};estadoVotos[s][c]=n;salvar();atualizarResumos();});
+ $('tabela-corpo').innerHTML=lista.map(d=>`<tr><td class="district">${escapeHTML(d.bairro)}</td><td class="place">${escapeHTML(d.local)}</td><td class="section"><span class="mobile-label">Seção</span>${d.secao}</td><td class="electors"><span class="mobile-label">Eleitores</span>${d.eleitores}</td>${['benes','neilton'].map(c=>`<td class="vote-cell ${c}"><label><span class="mobile-label ${c}-text">Votos ${c.toUpperCase()}</span><input type="number" min="0" max="2147483647" step="1" inputmode="numeric" pattern="[0-9]*" placeholder="0" readonly aria-readonly="true" aria-label="Votos ${c.toUpperCase()}, seção ${d.secao}" data-secao="${d.secao}" data-campo="${c}" value="${estadoVotos[d.secao]?.[c]??''}"></label></td>`).join('')}</tr>`).join('');if(typeof atualizarModoEdicao==='function')atualizarModoEdicao();}
+$('tabela-corpo').addEventListener('input',e=>{const el=e.target;if(!el.matches('input[data-secao]'))return;if(!podeEditar()){el.value=estadoVotos[el.dataset.secao]?.[el.dataset.campo]??'';return;}const n=el.value===''?0:Number(el.value);if(el.validity.badInput||!Number.isSafeInteger(n)||n<0||n>2147483647){el.setCustomValidity('Informe um número inteiro igual ou maior que zero.');el.reportValidity();return;}el.setCustomValidity('');const s=el.dataset.secao,c=el.dataset.campo;if(!estadoVotos[s])estadoVotos[s]={benes:0,neilton:0};estadoVotos[s][c]=n;salvar();atualizarResumos();});
 $('tabela-corpo').addEventListener('focusout',e=>{const el=e.target;if(el.matches('input[data-secao]')&&!el.checkValidity()){el.value=estadoVotos[el.dataset.secao]?.[el.dataset.campo]??'';el.setCustomValidity('');}});
 atualizarFiltroBairros();
 $('busca-geral').addEventListener('input',renderizarTabela);$('filtro-bairro').addEventListener('change',renderizarTabela);$('btn-limpar').onclick=()=>{$('busca-geral').value='';$('filtro-bairro').value='';renderizarTabela();};
 let toastTimer;function avisar(text){$('toast').textContent=text;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,5000);}
 function confirmar(text,action){$('confirm-text').textContent=text;$('confirm-ok').onclick=()=>{$('confirm-dialog').close();action();};$('confirm-dialog').showModal();$('confirm-cancel').focus();}
 $('confirm-cancel').onclick=()=>$('confirm-dialog').close();
-$('btn-zerar').onclick=()=>confirmar('Zerar os votos de TODAS as seções, inclusive as que estão fora do filtro? Baixe um backup antes se quiser guardar a simulação.',()=>{estadoVotos={};badStoredData=false;const ok=salvar();atualizarResumos();renderizarTabela();avisar(ok?'Simulação zerada.':'Simulação zerada nesta sessão. O armazenamento está indisponível.');});
+$('btn-zerar').onclick=()=>{if(!podeEditar())return;confirmar('Zerar os votos de TODAS as seções, inclusive as que estão fora do filtro? Baixe um backup antes se quiser guardar a simulação.',()=>{if(!podeEditar())return;estadoVotos={};badStoredData=false;const ok=salvar();atualizarResumos();renderizarTabela();avisar(ok?'Simulação zerada.':'Simulação zerada nesta sessão. O armazenamento está indisponível.');});};
 $('btn-exportar').onclick=()=>{const payload={app:'mapeamento-eleitoral',versao:1,exportadoEm:new Date().toISOString(),votos:estadoVotos};const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='mapeamento-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);};
-$('btn-importar').onclick=()=>$('backup-file').click();
-$('backup-file').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;try{if(file.size>2e6)throw Error();const obj=JSON.parse(await file.text());if(obj.app!=='mapeamento-eleitoral'||obj.versao!==1)throw Error();const votos=validarVotosEstritos(obj.votos);confirmar('Restaurar este backup? Ele substituirá os votos atuais de todas as seções.',()=>{estadoVotos=votos;badStoredData=false;const ok=salvar();renderizarTabela();atualizarResumos();avisar(ok?'Backup restaurado.':'Backup carregado nesta sessão. Não foi possível salvar no dispositivo.');});}catch{avisar('Arquivo inválido. Selecione um backup gerado neste painel.');}};
+$('btn-importar').onclick=()=>{if(podeEditar())$('backup-file').click();};
+$('backup-file').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file||!podeEditar())return;try{if(file.size>2e6)throw Error();const obj=JSON.parse(await file.text());if(obj.app!=='mapeamento-eleitoral'||obj.versao!==1)throw Error();const votos=validarVotosEstritos(obj.votos);confirmar('Restaurar este backup? Ele substituirá os votos atuais de todas as seções.',()=>{if(!podeEditar())return;estadoVotos=votos;badStoredData=false;const ok=salvar();renderizarTabela();atualizarResumos();avisar(ok?'Backup restaurado.':'Backup carregado nesta sessão. Não foi possível salvar no dispositivo.');});}catch{avisar('Arquivo inválido. Selecione um backup gerado neste painel.');}};
 const installDialog=$('install-dialog');let installPrompt=null;let offlineReady=false;
 const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 const localFile=location.protocol==='file:';
@@ -432,7 +433,7 @@ if(!localFile&&window.isSecureContext&&'serviceWorker' in navigator){navigator.s
 atualizarResumos();renderizarTabela();installState();connectionState();
 </script>
 <script>
-// A chave publicável identifica o projeto; o acesso aos dados exige login e RLS.
+// Consulta pública limitada pela política RLS; gravação exige conta autorizada.
 const SUPABASE_URL='https://ayqobtfetvojyabsnkyf.supabase.co';
 const SUPABASE_KEY='sb_publishable_utafuoyX944NA2wN2TQn7Q_nL5G6ZIm';
 const BASE_ID='macaiba-2026';
@@ -459,20 +460,32 @@ try{
 function cloudStatus(text,error=false){$('cloud-status').textContent=text;$('cloud-status').classList.toggle('cloud-error',error);}
 function saveMeta(){try{localStorage.setItem(META_KEY,JSON.stringify({dirty:cloudDirty,revision:cloudRevision,votos:canonical(estadoVotos)}));}catch{}}
 function setSession(value){cloudSession=value;try{if(value)sessionStorage.setItem(SESSION_KEY,JSON.stringify(value));else sessionStorage.removeItem(SESSION_KEY);}catch{}}
+function podeEditar(){return !!cloudSession&&cloudReady&&!cloudPaused;}
+function atualizarModoEdicao(){
+ const editavel=podeEditar();
+ document.querySelectorAll('#tabela-corpo input[data-secao]').forEach(el=>{el.readOnly=!editavel;el.tabIndex=editavel?0:-1;el.setAttribute('aria-readonly',String(!editavel));});
+ $('btn-importar').disabled=!editavel;$('btn-zerar').disabled=!editavel;
+ $('result-count').textContent=obterDadosFiltrados().length+' de '+dadosIniciais.length+' seções • '+(editavel?'Edição habilitada':'Somente consulta');
+}
 function controls(){
  const logged=!!cloudSession;
  $('cloud-login').hidden=logged;$('cloud-logout').hidden=!logged;
- $('cloud-sync').disabled=!logged||cloudBusy||!cloudReady||cloudPaused;
- $('cloud-load').disabled=!logged||cloudBusy;
+ $('cloud-sync').hidden=!logged;$('cloud-sync').disabled=!logged||cloudBusy||!cloudReady||cloudPaused;
+ $('cloud-load').disabled=cloudBusy;$('cloud-login').disabled=cloudBusy;
  $('cloud-logout').disabled=cloudBusy;
- $('cloud-account').textContent=logged?'Conta: '+(cloudSession.user?.email||'conectada'):'Uma cópia local permanece disponível neste aparelho.';
+ $('cloud-account').textContent=logged?'Administrador: '+(cloudSession.user?.email||'conectado'):'Consulta livre, sem e-mail. Edição restrita ao administrador.';
+ $('resolve-local').textContent=logged?'Enviar versão deste aparelho':'Manter dados deste aparelho';
+ $('resolve-message').textContent=logged?'A nuvem e este aparelho têm dados diferentes. Baixe uma cópia antes de escolher. Enviar a versão deste aparelho substituirá os votos da nuvem.':'Há dados diferentes guardados neste aparelho. Baixe um backup antes de escolher. A consulta não permite alterar os votos da nuvem.';
+ atualizarModoEdicao();
 }
-function explainError(e){
+function explainError(e,login=false){
+ if(login&&(e.status===400||e.status===401||e.code==='invalid_credentials'))return 'E-mail ou senha inválidos. Confira os dados da conta de administrador.';
+ if(!cloudSession&&(e.status===401||e.status===403||e.code==='42501'))return 'A consulta pública ainda não foi liberada. O administrador precisa ativar a leitura no Supabase. Nenhum dado local foi descartado.';
  if(e.code==='40001')return 'Há uma versão mais recente na nuvem. Atualize para escolher qual manter.';
  if(e.status===401||e.code==='invalid_credentials')return 'Sessão expirada ou credenciais inválidas. Entre novamente.';
  if(e.status===403||e.code==='42501')return 'Esta conta não tem acesso. Execute o SQL de liberação para o seu e-mail.';
  if(e.status===404||e.code==='PGRST205'||e.code==='PGRST202')return 'A estrutura do mapeamento ainda não foi instalada. Execute o SQL 01 no Supabase.';
- if(e.name==='AbortError')return 'A conexão demorou. As alterações locais continuam pendentes; tente novamente.';
+ if(e.name==='AbortError')return 'A conexão demorou. Tente atualizar os votos novamente.';
  if(e instanceof TypeError)return 'Sem acesso à nuvem. Confira a internet e tente novamente.';
  return e.message||'Não foi possível acessar a nuvem.';
 }
@@ -502,8 +515,12 @@ async function api(path,options={}){
  catch(e){if(e.status!==401)throw e;token=await accessToken(true);return http(path,{...options,token});}
 }
 async function readCloud(){
- const result=await api('/rest/v1/mapeamento_bases?id=eq.'+BASE_ID+'&select=id,secoes,votos,revisao,atualizado_em');
- if(!Array.isArray(result)||result.length!==1)throw Error('Base não encontrada ou conta sem acesso. Execute os SQLs 01 e 02 no Supabase.');
+ const path='/rest/v1/mapeamento_bases?id=eq.'+BASE_ID+'&select=id,secoes,votos,revisao,atualizado_em';
+ let result;
+ if(cloudSession){
+  try{result=await api(path);}catch(e){if(cloudSession)throw e;result=await http(path);}
+ }else result=await http(path);
+ if(!Array.isArray(result)||result.length!==1)throw Error(cloudSession?'Base não encontrada ou conta sem acesso.':'A base pública ainda não está disponível. Peça ao administrador para liberar a consulta.');
  const record=result[0];record.votos=validarVotosEstritos(record.votos);
  if(!Number.isSafeInteger(record.revisao)||record.revisao<1)throw Error('Revisão inválida na nuvem.');
  record.secoes=validarCadastro(record.secoes);aplicarCadastroNuvem(record.secoes);return record;
@@ -519,17 +536,17 @@ function showChoices(record){
 function adoptCloud(record){
  estadoVotos=validarVotosEstritos(record.votos);badStoredData=false;cloudRevision=record.revisao;cloudDirty=false;cloudReady=true;cloudPaused=false;remoteChoice=null;localVersion++;
  const saved=salvarLocal();saveMeta();atualizarResumos();renderizarTabela();
- cloudStatus('Carregado do Supabase · revisão '+cloudRevision+(saved?'':' · Não foi possível guardar uma cópia local.'));
+ cloudStatus((cloudSession?'Carregado do Supabase':'Votos atualizados, sem login')+' · revisão '+cloudRevision+(saved?'':' · Não foi possível guardar uma cópia local.'));
  controls();
 }
 async function loadCloud(quiet=false){
- if(cloudBusy||!cloudSession)return;
+ if(cloudBusy)return;
  cloudBusy=true;controls();if(!quiet)cloudStatus('Carregando mapeamento do Supabase…');
  try{
   const record=await readCloud();
   if(canonical(record.votos)===canonical(estadoVotos)){
    cloudRevision=record.revisao;cloudDirty=false;cloudReady=true;cloudPaused=false;saveMeta();
-   cloudStatus('Sincronizado com o Supabase · revisão '+cloudRevision);
+   cloudStatus((cloudSession?'Sincronizado com o Supabase':'Votos atualizados')+' · revisão '+cloudRevision);
   }else if(cloudDirty||badStoredData){showChoices(record);}
   else{adoptCloud(record);}
  }catch(e){cloudStatus(explainError(e),true);}
@@ -569,34 +586,35 @@ $('login-form').onsubmit=async e=>{
   if(!session?.access_token||!session?.user?.id)throw Error('Resposta de login inválida.');
   session.expires_at=session.expires_at||Math.floor(Date.now()/1000)+(session.expires_in||3600);
   setSession(session);$('login-password').value='';$('login-dialog').close();cloudReady=false;cloudPaused=false;controls();await loadCloud();
- }catch(error){$('login-message').textContent=explainError(error);}
+ }catch(error){$('login-message').textContent=explainError(error,true);}
  finally{$('login-submit').disabled=false;}
 };
 $('cloud-sync').onclick=()=>syncCloud();$('cloud-load').onclick=()=>loadCloud();
 $('cloud-logout').onclick=async()=>{
  if(cloudBusy)return;clearTimeout(syncTimer);const token=cloudSession?.access_token;
  setSession(null);cloudReady=false;cloudPaused=false;remoteChoice=null;controls();
- cloudStatus('Sessão encerrada neste aparelho.'+(cloudDirty?' Há alterações locais não enviadas.':'')+' A cópia local foi mantida.');
+ cloudStatus('Modo de consulta. Atualizando votos…');
  if(token)try{await http('/auth/v1/logout?scope=local',{method:'POST',token});}catch{}
+ await loadCloud();
 };
 $('resolve-backup').onclick=()=>$('btn-exportar').click();
 $('resolve-remote').onclick=()=>{if(!remoteChoice)return;const record=remoteChoice;$('resolve-dialog').close();adoptCloud(record);};
 $('resolve-local').onclick=()=>{
- if(!remoteChoice)return;cloudRevision=remoteChoice.revisao;remoteChoice=null;cloudPaused=false;cloudReady=true;cloudDirty=true;badStoredData=false;
+ if(!remoteChoice)return;if(!cloudSession){$('resolve-dialog').close();remoteChoice=null;cloudPaused=true;cloudReady=false;cloudStatus('Exibindo os dados guardados neste aparelho. Use Atualizar votos para consultar a nuvem.');controls();return;}cloudRevision=remoteChoice.revisao;remoteChoice=null;cloudPaused=false;cloudReady=true;cloudDirty=true;badStoredData=false;
  $('resolve-dialog').close();saveMeta();controls();syncCloud();
 };
-function cancelChoice(){cloudPaused=true;cloudReady=false;cloudStatus('Sincronização pausada. Use Atualizar da nuvem para escolher uma versão.',true);controls();}
+function cancelChoice(){cloudPaused=true;cloudReady=false;cloudStatus('Sincronização pausada. Use Atualizar votos para escolher uma versão.',true);controls();}
 $('resolve-cancel').onclick=()=>{$('resolve-dialog').close();cancelChoice();};$('resolve-dialog').addEventListener('cancel',cancelChoice);
-window.addEventListener('online',()=>{if(cloudDirty&&cloudReady&&!cloudPaused)syncCloud();else if(cloudSession&&!cloudPaused)loadCloud(true);});
-window.addEventListener('offline',()=>{if(cloudSession)cloudStatus('Sem conexão.'+(cloudDirty?' Alterações locais pendentes.':' Cópia local disponível.'));});
+window.addEventListener('online',()=>{if(cloudSession&&cloudDirty&&cloudReady&&!cloudPaused)syncCloud();else if(!cloudPaused)loadCloud(true);});
+window.addEventListener('offline',()=>{cloudStatus('Sem conexão.'+(cloudDirty?' Dados locais preservados.':' Exibindo a última cópia salva neste aparelho.'));});
 window.addEventListener('beforeunload',e=>{if(cloudDirty){e.preventDefault();e.returnValue='';}});
 window.addEventListener('storage',e=>{
  if(e.key!==storageKey)return;
  clearTimeout(syncTimer);cloudPaused=true;cloudReady=false;cloudDirty=true;localVersion++;
- cloudStatus('Outra aba alterou a cópia local. Use Atualizar da nuvem para revisar as versões. Esta aba manteve seus dados.',true);controls();
+ cloudStatus('Outra aba alterou a cópia local. Use Atualizar votos para revisar as versões. Esta aba manteve seus dados.',true);controls();
 });
-setInterval(()=>{if(cloudSession&&!cloudBusy&&!cloudDirty&&!cloudPaused&&!$('resolve-dialog').open&&!document.hidden&&!document.activeElement?.matches('input'))loadCloud(true);},30000);
-controls();if(cloudSession)loadCloud();else if(cloudDirty)cloudStatus('Há dados neste aparelho. Entre para comparar com a base do Supabase.');
+setInterval(()=>{if(!cloudBusy&&!cloudDirty&&!cloudPaused&&!$('resolve-dialog').open&&!document.hidden&&!document.activeElement?.matches('input'))loadCloud(true);},30000);
+controls();loadCloud();
 
 </script>
 </body>
